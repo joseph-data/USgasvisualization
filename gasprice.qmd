@@ -1,6 +1,10 @@
 ---
 title: "Weekly US Gas Prices"
 format: html
+execute:
+  echo: false
+  warning: false
+  message: false
 ---
 
 ## Introduction
@@ -164,3 +168,5 @@ p4
   )
 
 ```
+
+
