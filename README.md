@@ -27,7 +27,7 @@ A Quarto‐ and Shiny‐based exploration of weekly U.S. retail gas prices (dies
 
 ## 📊 Data Source
 
-All data are pulled directly from the TidyTuesday repository:https://github.com/rfordatascience/tidytuesday/tree/main/data/2025/2025-07-01
+All data are pulled directly from the TidyTuesday repository: https://github.com/rfordatascience/tidytuesday/tree/main/data/2025/2025-07-01
 
 Specifically the file:
 `weekly_gas_prices.csv`
@@ -50,24 +50,21 @@ USgasvisualization/
 
 **1. Clone the repo**
 
-```
-{bash}
+```bash
 git clone https://github.com/joseph-data/USgasvisualization.git
 cd USgasvisualization
 ```
 **2. R environment setup**
 
 *(Optional)* Activate your project library with `renv`:
-```
-{r}
+```r
 renv::activate()
 renv::restore()
 ```
 
 OR install packages into your user library:
 
-```
-{r}
+```r
 install.packages(c(
   "quarto",     # if using Quarto from R
   "shiny",
@@ -83,8 +80,7 @@ install.packages(c(
 **1. Render the Static Dashboard**
 From the command line:
 
-```
-{bash}
+```bash
 quarto render gasprice.qmd
 ```
 
@@ -93,20 +89,15 @@ Then open `gasprice.html` in your browser.
 **2. Launch the Interactive Shiny App**
 
 In R or RStudio, run:
-```
-{r}
+```r
 shiny::runApp("app.R")
 ```
 ---
 
-## Contact
+## 📬 Contact
+
+[![GitHub Contact](https://img.shields.io/badge/GitHub-Contact-blue?logo=github)](https://github.com/joseph-data)
 
 For questions or suggestions, please open an issue or reach out via [GitHub profile](https://github.com/joseph-data).
 
 ---
-
-
-
-
-
-
