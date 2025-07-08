@@ -41,6 +41,7 @@ USgasvisualization/
 ├── app.R # Shiny application
 └── renv.lock # Lockfile for reproducible R dependencies
 ```
+---
 ## 🔧 Setup & Installation
 
 **1. Clone the repo**
@@ -73,7 +74,7 @@ install.packages(c(
   "patchwork"
 ))
 ```
-
+---
 ## ▶️ Usage
 **1. Render the Static Dashboard**
 From the command line:
