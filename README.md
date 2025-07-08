@@ -94,7 +94,6 @@ In R or RStudio, run:
 shiny::runApp("app.R")
 ```
 ---
----
 
 ## 🛡️ License
 
