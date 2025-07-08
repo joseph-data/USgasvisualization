@@ -94,9 +94,16 @@ In R or RStudio, run:
 shiny::runApp("app.R")
 ```
 ---
-## License
+---
 
-This repo is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/) License.
+## 🛡️ License
+
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+This repository is licensed under the  
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) License.
+
+You are free to share and adapt the material for non-commercial purposes, provided that you give appropriate credit and distribute any derivative works under the same license.
 
 
 
