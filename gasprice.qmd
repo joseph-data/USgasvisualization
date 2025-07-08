@@ -2,7 +2,7 @@
 title: "Weekly US Gas Prices"
 format: html
 execute:
-  echo: false
+  echo: true
   warning: false
   message: false
 ---
@@ -47,6 +47,8 @@ theme_set(
     panel.grid.minor = element_blank()
   )
 )
+
+
 ```
 
 ```{r}
@@ -193,3 +195,21 @@ final_plot
 ```
 
 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+if (!dir.exists("images")) dir.create("images")
+
+# Higher resolution (dpi = 600)
+ggsave("images/annual_avg_prices.png", plot = p1, width = 9, height = 5, dpi = 600)
+ggsave("images/monthly_boxplot.png", plot = p2, width = 8, height = 5, dpi = 600)
+ggsave("images/weekly_changes.png", plot = p3, width = 9, height = 5, dpi = 600)
+ggsave("images/diesel_vs_gasoline.png", plot = p4, width = 7, height = 5, dpi = 600)
+
+# SVG (vector output)
+ggsave("images/final_2x2_grid.svg", plot = final_plot, width = 12, height = 8, device = "svg")
+
+```
