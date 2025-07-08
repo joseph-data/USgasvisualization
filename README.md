@@ -1,5 +1,9 @@
 # Weekly US Gas Prices Visualization - TidyTuesday
 
+[![R](https://img.shields.io/badge/R-276DC3?logo=R&logoColor=white)](https://cran.r-project.org/)
+[![tidytuesday](https://img.shields.io/badge/TidyTuesday-Project-blueviolet?logo=R&logoColor=white)](https://github.com/rfordatascience/tidytuesday)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A Quarto‐ and Shiny‐based exploration of weekly U.S. retail gas prices (diesel & regular gasoline) from 1995 through 2025. This repo contains both a static Quarto notebook (`gasprice.qmd`) producing a multi‐panel summary dashboard, and a fully interactive Shiny app (`app.R`) for ad‐hoc filtering and plotting.
 
 ---
@@ -95,14 +99,11 @@ shiny::runApp("app.R")
 ```
 ---
 
-## 🛡️ License
+## Contact
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+For questions or suggestions, please open an issue or reach out via [GitHub profile](https://github.com/joseph-data).
 
-This repository is licensed under the  
-[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) License.
-
-You are free to share and adapt the material for non-commercial purposes, provided that you give appropriate credit and distribute any derivative works under the same license.
+---
 
 
 
