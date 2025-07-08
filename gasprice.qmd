@@ -79,10 +79,10 @@ p1 <- ggplot(annual, aes(x = year, y = avg_price, color = fuel)) +
   scale_color_viridis_d(option = "D", end = .8, name = "Fuel") +
   scale_x_continuous(breaks = seq(1995, 2025, by = 5)) +
   labs(
-    title    = "Average Annual US Gas Prices (1995–2025)",
-    x        = "Year",
-    y        = "Average Price (USD)",
-    caption  = "Data: TidyTuesday · Visualization: Your Name"
+    title = "Average Annual US Gas Prices\n(1995–2025)",
+    x     = "Year",
+    y     = "Average Price (USD)",
+    caption = "Data: TidyTuesday · Visualization: Joseph Nyajuoga"
   ) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
@@ -155,17 +155,40 @@ p4
 
 
 ```{r}
-(p1 / p2) | (p3 / p4) +
+#| fig-width: 12     # total width in inches
+#| fig-height: 8     # total height in inches
+#| fig-format: svg   # vector output for crisp lines in HTML
+#| out-width: "100%" # scale the SVG to fill the page width
+# 1) Build the 2×2 grid, collect all legends, and tell it to generate new tags:
+combined <- (p1 + p2 + p3 + p4) +
+  plot_layout(
+    ncol     = 2,
+    nrow     = 2,
+    guides   = "collect",
+    tag_level = "new"      # <-- must be "new" (or "keep"), not "A"
+  ) & 
+  theme(
+    #legend.position = "none",
+    plot.margin     = margin(10, 10, 10, 10),
+    plot.tag        = element_text(face = "bold", size = 14)
+  )
+
+# 2) Add your title/subtitle/caption *and* specify tag_levels="A":
+final_plot <- combined +
   plot_annotation(
-    title    = "Weekly US Gas Prices: Trends, Seasonality & Volatility",
-    subtitle = "Diesel vs. Regular Gasoline, 1995–2025",
-    caption  = "Data: TidyTuesday · Analysis: Your Name"
-  ) &
+    title      = "Weekly US Gas Prices: Trends, Seasonality & Volatility",
+    subtitle   = "Diesel vs. Regular Gasoline, 1995–2025",
+    caption    = "Data: TidyTuesday · Analysis: Joseph Nyajuoga",
+    tag_levels = "A"       # <-- starts tags at A, B, C, D...
+  ) & 
   theme(
     plot.title    = element_text(size = 18, face = "bold"),
     plot.subtitle = element_text(size = 14),
     plot.caption  = element_text(size = 10)
   )
+
+# 3) Print it
+final_plot
 
 ```
 
