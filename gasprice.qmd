@@ -151,7 +151,12 @@ p4
 
 ## Combined Overview
 
-```{r combined-plot, fig-width=12, fig-height=8, fig-format="svg", out-width="100%"}
+```{r combined-plot}
+#| fig-width: 12
+#| fig-height: 8
+#| fig-format: "svg"
+#| out-width: "100%"
+
 combined <- (p1 + p2 + p3 + p4) +
   plot_layout(ncol = 2, guides = "collect", tag_level = "new") &
   theme(plot.margin = margin(10,10,10,10), plot.tag = element_text(face = "bold"))
@@ -174,7 +179,7 @@ final_plot
 
 ## Save High-Resolution Files
 
-```{r save-plots, include=FALSE}
+```{r save-plots}
 ggsave("images/annual_avg_prices.png",      plot = p1, width = 9,  height = 5, dpi = 600)
 ggsave("images/monthly_distribution.png",   plot = p2, width = 8,  height = 5, dpi = 600)
 ggsave("images/weekly_change.png",          plot = p3, width = 9,  height = 5, dpi = 600)
