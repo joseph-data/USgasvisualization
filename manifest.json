@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "locale": "en_US.UTF-8",
+  "metadata": {
+    "appmode": "shiny",
+    "entrypoint": "app.R"
+  },
+  "packages": {
+    "shiny": {
+      "description": {
+        "Package": "shiny",
+        "Type": "Package",
+        "Title": "Web Application Framework for R",
+        "Version": "1.7.4",
+        "Repository": "CRAN"
+      }
+    },
+    "tidyverse": {
+      "description": {
+        "Package": "tidyverse",
+        "Type": "Package", 
+        "Title": "Easily Install and Load the 'Tidyverse'",
+        "Version": "2.0.0",
+        "Repository": "CRAN"
+      }
+    },
+    "lubridate": {
+      "description": {
+        "Package": "lubridate",
+        "Type": "Package",
+        "Title": "Make Dealing with Dates a Little Easier",
+        "Version": "1.9.2",
+        "Repository": "CRAN"
+      }
+    },
+    "scales": {
+      "description": {
+        "Package": "scales",
+        "Type": "Package",
+        "Title": "Scale Functions for Visualization",
+        "Version": "1.2.1",
+        "Repository": "CRAN"
+      }
+    },
+    "viridis": {
+      "description": {
+        "Package": "viridis",
+        "Type": "Package",
+        "Title": "Colorblind-Friendly Color Maps for R",
+        "Version": "0.6.3",
+        "Repository": "CRAN"
+      }
+    },
+    "patchwork": {
+      "description": {
+        "Package": "patchwork",
+        "Type": "Package",
+        "Title": "The Composer of Plots",
+        "Version": "1.1.2",
+        "Repository": "CRAN"
+      }
+    },
+    "plotly": {
+      "description": {
+        "Package": "plotly",
+        "Type": "Package",
+        "Title": "Create Interactive Web Graphics via 'plotly.js'",
+        "Version": "4.10.2",
+        "Repository": "CRAN"
+      }
+    }
+  },
+  "files": {
+    "app.R": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    },
+    "renv.lock": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    }
+  },
+  "users": null
+}

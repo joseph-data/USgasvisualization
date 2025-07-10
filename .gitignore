@@ -47,6 +47,7 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
 # R session/state
 .Rhistory
 .RData
@@ -62,6 +63,7 @@ renv/
 
 # Build outputs
 outputs/
+
 # If your raw data are large or sensitive, uncomment this
 # data/
 
@@ -72,4 +74,25 @@ Python_pull/
 .DS_Store
 Thumbs.db
 
+# Quarto files
 gasprice_files/
+
+# Deployment artifacts
+*.log
+*.tmp
+.deploy-*
+
+# Docker
+.dockerignore
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary deployment files
+/tmp/
+temp/
+
+# Local environment files
+.env
+.env.local

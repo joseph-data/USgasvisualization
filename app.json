@@ -1,0 +1,20 @@
+{
+  "name": "usgasvisualization",
+  "description": "Interactive US Gas Prices Visualization - A Shiny app exploring weekly gas prices from 1995-2025",
+  "image": "heroku/r",
+  "buildpacks": [
+    {
+      "url": "https://github.com/virtualstaticvoid/heroku-buildpack-r.git#heroku-18"
+    }
+  ],
+  "env": {
+    "R_VERSION": "4.3.0"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": []
+}
