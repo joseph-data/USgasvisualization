@@ -46,7 +46,11 @@ docs/
 po/*~
 
 # RStudio Connect folder
-rsconnect/
+# rsconnect/
+
+# Test files
+app-test.R
+
 # R session/state
 .Rhistory
 .RData

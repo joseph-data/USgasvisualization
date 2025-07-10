@@ -1,0 +1,14 @@
+services:
+  shiny-app:
+    build: .
+    ports:
+      - "3838:3838"
+    environment:
+      - SHINY_LOG_LEVEL=TRACE
+    volumes:
+      - shiny-logs:/var/log/shiny-server
+    restart: unless-stopped
+    container_name: us-gas-visualization
+
+volumes:
+  shiny-logs:

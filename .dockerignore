@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+DEPLOYMENT.md
+*.md
+
+# Images and static assets (not needed for the app)
+images/
+*.png
+*.jpg
+*.jpeg
+*.svg
+
+# Quarto files
+gasprice.qmd
+gasprice.html
+
+# R environment
+.Rprofile
+.Rhistory
+.RData
+.Ruserdata
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Docker files (don't include these in the container)
+Dockerfile
+docker-compose.yml
+deploy-docker.sh
+
+# Test files
+app-test.R

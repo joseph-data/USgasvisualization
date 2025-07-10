@@ -112,6 +112,17 @@ In R or RStudio, run:
 ```r
 shiny::runApp("app.R")
 ```
+
+**3. Deploy the App**
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions including:
+- Deploying to shinyapps.io (cloud hosting)
+- Docker deployment (self-hosted)
+- Local development setup
+
+Quick deployment options:
+- **shinyapps.io**: Use `rsconnect/shinyapps.io/deploy.R` script
+- **Docker**: Run `./deploy-docker.sh` script
 ---
 
 ## 📬 Contact
