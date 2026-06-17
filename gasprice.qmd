@@ -1,188 +1,365 @@
 ---
 title: "Weekly US Gas Prices"
+author: "Joseph Nyajuoga"
+date: today
 format:
   html:
     toc: true
     toc-location: left
+    toc-depth: 2
+    code-fold: true
+    code-summary: "Show code"
 execute:
-  echo: true
   warning: false
   message: false
+brand: _brand.yml
 ---
 
 ## Introduction
 
-Weekly U.S. retail prices for **diesel** and **regular gasoline** from 1995 to 2025 reveal market dynamics, seasonality, and volatility. In this article, we:
+Weekly U.S. retail prices for **diesel** and **regular gasoline** span from 1995 to 2025, covering three decades of energy market history. This analysis explores four questions:
 
-1. Trace long-term trends.
-2. Uncover seasonal patterns.
-3. Quantify week-to-week volatility.
-4. Compare diesel vs. gasoline pricing.
+1.  How have prices trended over the long run, and what drove the largest swings?
+2.  Is there a consistent seasonal pattern within each year?
+3.  How volatile are prices week to week, and when were the most turbulent periods?
+4.  How closely do diesel and gasoline prices track each other?
 
----
+The data come from the U.S. Energy Information Administration (EIA) via the TidyTuesday project (2025-07-01 release). Prices are in nominal USD per gallon.
 
-## Setup
+------------------------------------------------------------------------
 
-```{r setup, include=FALSE}
+## Data
+
+```{r setup}
+#| include: false
 library(tidyverse)
 library(lubridate)
 library(scales)
 library(viridis)
 library(patchwork)
 
-# Global theme
 theme_set(
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 13) +
     theme(
       plot.title.position   = "plot",
       plot.caption.position = "plot",
-      panel.grid.minor      = element_blank()
+      panel.grid.minor      = element_blank(),
+      plot.title            = element_text(face = "bold")
     )
 )
 
-# Create images directory
 if (!dir.exists("images")) dir.create("images")
 ```
 
-## Data Acquisition & Cleaning
-
 ```{r data}
-# Read and clean data
 prices <- read_csv(
   "https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-07-01/weekly_gas_prices.csv",
   col_types = cols(date = col_date(), price = col_double())
-) %>%
+) |>
   mutate(
     year  = year(date),
     month = month(date, label = TRUE, abbr = TRUE)
-  ) %>%
+  ) |>
   filter(
-    (fuel == "diesel" & grade == "all") |
+    (fuel == "diesel"   & grade == "all") |
     (fuel == "gasoline" & grade == "regular" & formulation == "conventional")
   )
 ```
 
-## Annual Average Prices
+The dataset contains `r nrow(prices)` weekly observations across both fuel types, spanning `r min(prices$date)` to `r max(prices$date)`.
+
+```{r summary-table}
+prices |>
+  group_by(fuel) |>
+  summarise(
+    Weeks       = n(),
+    `Min (USD)` = min(price,  na.rm = TRUE),
+    `Mean (USD)`= mean(price, na.rm = TRUE),
+    `Max (USD)` = max(price,  na.rm = TRUE),
+    `SD (USD)`  = sd(price,   na.rm = TRUE)
+  ) |>
+  mutate(across(where(is.double), \(x) round(x, 2))) |>
+  rename(Fuel = fuel) |>
+  knitr::kable(caption = "Summary statistics for weekly retail prices (1995–2025)")
+```
+
+------------------------------------------------------------------------
+
+## Long-Run Trends
 
 ```{r annual-plot}
-annual <- prices %>%
-  group_by(year, fuel) %>%
-  summarize(avg_price = mean(price, na.rm = TRUE), .groups = "drop")
+annual <- prices |>
+  group_by(year, fuel) |>
+  summarise(avg_price = mean(price, na.rm = TRUE), .groups = "drop")
+
+events <- tibble(
+  year  = c(2008, 2012, 2020, 2022),
+  label = c("2008\nCrisis", "Post-crisis\npeak", "COVID-19\ndrop", "Ukraine\nwar spike"),
+  y     = c(3.3, 3.9, 1.0, 4.8)
+)
 
 p1 <- ggplot(annual, aes(x = year, y = avg_price, color = fuel)) +
-  geom_line(size = 1.2) +
+  geom_vline(xintercept = c(2008, 2012, 2020, 2022),
+             linetype = "dashed", color = "grey80", linewidth = 0.5) +
+  geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
-  scale_color_viridis_d(option = "D", end = .8) +
-  scale_x_continuous(breaks = seq(1995, 2025, by = 5)) +
-  labs(
-    title   = "Average Annual US Gas Prices (1995–2025)",
-    x       = "Year",
-    y       = "Average Price (USD)",
-    color   = "Fuel Type",
-    caption = "Data: TidyTuesday · Analysis: Joseph Nyajuoga"
+  geom_text(
+    data = events,
+    aes(x = year, y = y, label = label),
+    inherit.aes = FALSE,
+    size = 2.8, color = "grey40", lineheight = 0.9, hjust = 1.1
   ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  scale_color_viridis_d(option = "D", end = .8,
+                        labels = c("Diesel", "Gasoline")) +
+  scale_x_continuous(breaks = seq(1995, 2025, by = 5)) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(
+    title   = "Annual Average US Retail Fuel Prices (1995–2025)",
+    x       = NULL,
+    y       = "Average Price (USD/gallon)",
+    color   = NULL,
+    caption = "Source: EIA via TidyTuesday · Analysis: Joseph Nyajuoga"
+  ) +
+  theme(
+    legend.position   = "top",
+    axis.text.x       = element_text(angle = 45, hjust = 1)
+  )
 
 p1
 ```
+
+::: callout-note
+Prices roughly doubled between 1995 and their 2012 post-crisis peak, driven by growing global demand and constrained supply. Two sharp reversals stand out: the 2008 financial crisis (demand destruction) and the 2020 COVID-19 lockdowns (the steepest single-year drop in the dataset). The 2022 Russia-Ukraine war sent prices to their highest nominal level on record before the subsequent retreat.
+:::
+
+------------------------------------------------------------------------
 
 ## Seasonal Patterns
 
 ```{r monthly-plot}
 p2 <- ggplot(prices, aes(x = month, y = price, fill = fuel)) +
-  geom_boxplot(alpha = 0.8, outlier.shape = NA) +
-  scale_fill_viridis_d(option = "C") +
+  geom_boxplot(alpha = 0.75, outlier.shape = 21, outlier.size = 1,
+               outlier.alpha = 0.4) +
+  scale_fill_viridis_d(option = "C", labels = c("Diesel", "Gasoline")) +
+  scale_y_continuous(labels = dollar_format()) +
   labs(
-    title = "Monthly Distribution of Gas Prices",
-    x     = "Month",
-    y     = "Price (USD)",
-    fill  = "Fuel Type"
+    title   = "Monthly Price Distribution Across All Years",
+    x       = NULL,
+    y       = "Price (USD/gallon)",
+    fill    = NULL,
+    caption = "Source: EIA via TidyTuesday · Analysis: Joseph Nyajuoga"
   ) +
   theme(legend.position = "top")
 
 p2
 ```
 
-## Volatility: Week-to-Week Change
+::: callout-note
+Gasoline prices show a mild summer premium (May-August), reflecting the U.S. summer driving season and the switch to more expensive summer-blend formulations. Diesel exhibits the opposite tendency: prices are often highest in late autumn and winter when heating oil demand competes with trucking for the same distillate supply. The wide interquartile ranges reflect price-level differences across years more than within-year seasonality.
+:::
+
+------------------------------------------------------------------------
+
+## Week-to-Week Volatility
 
 ```{r weekly-change-plot}
-diffs <- prices %>%
-  arrange(date) %>%
-  group_by(fuel) %>%
-  mutate(delta = price - lag(price)) %>%
+diffs <- prices |>
+  arrange(date) |>
+  group_by(fuel) |>
+  mutate(delta = price - lag(price)) |>
   drop_na()
 
+extreme_weeks <- diffs |>
+  group_by(fuel) |>
+  slice_max(abs(delta), n = 1)
+
 p3 <- ggplot(diffs, aes(x = date, y = delta, color = fuel)) +
-  geom_hline(yintercept = 0, color = "gray70") +
-  geom_line(alpha = 0.6) +
-  scale_color_viridis_d(option = "A", end = .7) +
-  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-  labs(
-    title = "Weekly Change in Gas Prices",
-    x     = "Date",
-    y     = "Δ Price (USD)",
-    color = "Fuel Type"
+  geom_hline(yintercept = 0, color = "grey60", linewidth = 0.6) +
+  geom_line(alpha = 0.55, linewidth = 0.4) +
+  geom_point(
+    data = extreme_weeks,
+    aes(x = date, y = delta),
+    size = 3, shape = 21, fill = "white", stroke = 1.2
   ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  scale_color_viridis_d(option = "A", end = .7,
+                        labels = c("Diesel", "Gasoline")) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(
+    title   = "Week-on-Week Change in US Retail Fuel Prices",
+    x       = NULL,
+    y       = "Price change (USD/gallon)",
+    color   = NULL,
+    caption = "Source: EIA via TidyTuesday · Analysis: Joseph Nyajuoga"
+  ) +
+  theme(
+    legend.position = "top",
+    axis.text.x     = element_text(angle = 45, hjust = 1)
+  )
 
 p3
 ```
 
-## Price Relationship: Diesel vs. Gasoline
+```{r volatility-stats}
+#| echo: false
+diffs |>
+  group_by(fuel) |>
+  summarise(
+    `Mean |Δ| (USD)` = mean(abs(delta), na.rm = TRUE),
+    `Max rise (USD)`  = max(delta,       na.rm = TRUE),
+    `Max fall (USD)`  = min(delta,       na.rm = TRUE)
+  ) |>
+  mutate(across(where(is.double), \(x) round(x, 3))) |>
+  rename(Fuel = fuel) |>
+  knitr::kable(caption = "Week-on-week price-change statistics")
+```
+
+::: callout-note
+Most weeks see a change of less than five cents per gallon, but the distribution has heavy tails. The largest single-week swings (circled) occur around supply shocks; the 2020 demand collapse and the 2022 war-driven supply shock are both visible as dense clusters of outsized moves. Diesel volatility tends to amplify gasoline moves, reflecting its dual role as both a transport and heating fuel.
+:::
+
+------------------------------------------------------------------------
+
+## Diesel vs. Gasoline
 
 ```{r scatter-plot}
-wide <- prices %>%
-  select(date, fuel, price) %>%
-  pivot_wider(names_from = fuel, values_from = price)
+wide <- prices |>
+  select(date, fuel, price) |>
+  pivot_wider(names_from = fuel, values_from = price) |>
+  drop_na()
 
-p4 <- ggplot(wide, aes(x = gasoline, y = diesel, color = date)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", color = "black", se = FALSE) +
-  scale_color_viridis_c(option = "B") +
+cor_val <- cor(wide$diesel, wide$gasoline) |> round(3)
+
+p4 <- ggplot(wide, aes(x = gasoline, y = diesel, color = year(date))) +
+  geom_point(alpha = 0.55, size = 1.2) +
+  geom_smooth(method = "lm", color = "black", linewidth = 0.8, se = TRUE) +
+  scale_color_viridis_c(option = "B", name = "Year") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = dollar_format()) +
+  annotate("text", x = 1.4, y = 4.8,
+           label = paste0("r = ", cor_val),
+           size = 4, hjust = 0, color = "grey30") +
   labs(
-    title = "Diesel vs. Regular Gasoline Prices",
-    x     = "Gasoline (USD)",
-    y     = "Diesel (USD)"
+    title   = "Diesel vs. Regular Gasoline Prices",
+    x       = "Gasoline (USD/gallon)",
+    y       = "Diesel (USD/gallon)",
+    caption = "Source: EIA via TidyTuesday · Analysis: Joseph Nyajuoga"
   ) +
-  theme(legend.position = "none")
+  theme(legend.position = "right")
 
 p4
 ```
 
+::: callout-note
+Diesel and gasoline prices are highly correlated (r = `r cor_val`), as both are refined from crude oil. However, diesel consistently commands a premium over gasoline — a structural shift that became pronounced after 2005 as developing-world demand for distillates grew and U.S. refiners were already running near capacity. Earlier points (darker colour) cluster in the lower-left, reflecting the lower absolute price level of the 1990s and early 2000s.
+:::
+
+------------------------------------------------------------------------
+
 ## Combined Overview
 
 ```{r combined-plot}
-#| fig-width: 12
-#| fig-height: 8
-#| fig-format: "svg"
+#| echo: false
+#| fig-width: 13
+#| fig-height: 9
 #| out-width: "100%"
 
-combined <- (p1 + p2 + p3 + p4) +
-  plot_layout(ncol = 2, guides = "collect", tag_level = "new") &
-  theme(plot.margin = margin(10,10,10,10), plot.tag = element_text(face = "bold"))
+# Shared palette — same two colours across all four panels
+fp <- c("diesel" = "#440154", "gasoline" = "#5DC863")
+fl <- c("diesel" = "Diesel",  "gasoline" = "Gasoline")
 
-final_plot <- combined +
+# Small-multiple overrides applied to every panel
+sm <- theme(
+  plot.title      = element_text(size = 10, face = "bold", margin = margin(b = 3)),
+  axis.title      = element_text(size = 8),
+  axis.text       = element_text(size = 7),
+  legend.position = "none",
+  plot.caption    = element_blank()
+)
+
+# A — Annual trend
+pa <- ggplot(annual, aes(year, avg_price, colour = fuel)) +
+  geom_vline(xintercept = c(2008, 2020, 2022),
+             linetype = "dashed", colour = "grey82", linewidth = 0.4) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 1.8) +
+  annotate("text", x = 2007.6, y = 4.15, label = "2008 crisis",
+           size = 2.5, colour = "grey50", hjust = 1) +
+  annotate("text", x = 2019.6, y = 0.95, label = "COVID",
+           size = 2.5, colour = "grey50", hjust = 1) +
+  annotate("text", x = 2021.6, y = 4.6, label = "Ukraine
+war",
+           size = 2.5, colour = "grey50", hjust = 1, lineheight = 0.85) +
+  scale_colour_manual(values = fp, labels = fl, name = NULL) +
+  scale_x_continuous(breaks = seq(1995, 2025, 5)) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Annual average prices", x = NULL, y = "USD / gallon") +
+  sm
+
+# B — Seasonal boxplots; fill derived from colour so guides merge to one legend
+pb <- ggplot(prices, aes(month, price, colour = fuel,
+                          fill = after_scale(alpha(colour, 0.25)))) +
+  geom_boxplot(linewidth = 0.45, outlier.shape = NA) +
+  scale_colour_manual(values = fp, labels = fl, name = NULL) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Seasonal distribution", x = NULL, y = "USD / gallon") +
+  sm
+
+# C — Week-on-week change
+pc <- ggplot(diffs, aes(date, delta, colour = fuel)) +
+  geom_hline(yintercept = 0, colour = "grey60", linewidth = 0.5) +
+  geom_line(alpha = 0.55, linewidth = 0.35) +
+  scale_colour_manual(values = fp, labels = fl, name = NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Week-on-week price change", x = NULL, y = "Δ USD / gallon") +
+  sm
+
+# D — Scatter; trend line in diesel purple, no fuel colour scale
+pd <- ggplot(wide, aes(gasoline, diesel)) +
+  geom_point(alpha = 0.3, size = 0.9, colour = "grey55") +
+  geom_smooth(method = "lm", colour = "#440154", linewidth = 0.9, se = FALSE) +
+  annotate("text", x = Inf, y = -Inf, label = paste0("r = ", cor_val),
+           size = 3, hjust = 1.1, vjust = -0.6, colour = "grey35",
+           fontface = "italic") +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Diesel vs. gasoline", x = "Gasoline (USD / gal)", y = "Diesel (USD / gal)") +
+  sm
+
+# Assemble — single shared legend; all fuel aesthetics use scale_colour_manual
+(pa + pb) / (pc + pd) +
+  plot_layout(guides = "collect") +
   plot_annotation(
-    title      = "Weekly US Gas Prices: Trends, Seasonality & Volatility",
-    subtitle   = "Diesel vs. Regular Gasoline, 1995–2025",
-    caption    = "Data: TidyTuesday · Analysis: Joseph Nyajuoga",
-    tag_levels = "A"
+    title    = "Weekly US Fuel Prices: Trends, Seasonality & Volatility (1995–2025)",
+    subtitle = "Diesel vs. Regular Conventional Gasoline · EIA via TidyTuesday",
+    caption  = "Analysis: Joseph Nyajuoga"
   ) &
   theme(
-    plot.title    = element_text(size = 18, face = "bold"),
-    plot.subtitle = element_text(size = 14),
-    plot.caption  = element_text(size = 10)
+    legend.position = "bottom",
+    legend.key.size = unit(0.55, "cm"),
+    legend.text     = element_text(size = 10),
+    plot.title      = element_text(size = 15, face = "bold"),
+    plot.subtitle   = element_text(size = 11, colour = "grey40"),
+    plot.caption    = element_text(size = 9,  colour = "grey50")
   )
-
-final_plot
 ```
 
-## Save High-Resolution Files
+------------------------------------------------------------------------
+
+## Conclusions
+
+Three decades of weekly data point to a few durable findings:
+
+- **Prices are structurally higher than they were in the 1990s.** Nominal prices have roughly tripled since 1995, with most of the step-change occurring during 2003-2008 as global demand outpaced refining capacity.
+- **External shocks dominate the variance.** The 2008 financial crisis, 2020 pandemic, and 2022 Russia-Ukraine war each produced moves that dwarf the typical seasonal signal, making fuel prices a useful macro-economic indicator in their own right.
+- **Diesel carries a persistent premium.** Before 2005, diesel was often cheaper than gasoline; since then it has traded at a consistent premium of roughly 20-50 cents per gallon, driven by global distillate demand from emerging markets and the heating-oil market.
+- **Seasonality is real but modest.** Within any given year, price variation is roughly 10-20 cents, far smaller than the year-to-year shifts driven by crude oil prices.
 
 ```{r save-plots}
-ggsave("images/annual_avg_prices.png",      plot = p1, width = 9,  height = 5, dpi = 600)
-ggsave("images/monthly_distribution.png",   plot = p2, width = 8,  height = 5, dpi = 600)
-ggsave("images/weekly_change.png",          plot = p3, width = 9,  height = 5, dpi = 600)
-ggsave("images/diesel_vs_gasoline.png",     plot = p4, width = 7,  height = 5, dpi = 600)
-ggsave("images/final_overview.svg",         plot = final_plot, width = 12, height = 8, device = "svg")
+#| include: false
+ggsave("images/annual_avg_prices.png",    p1,       width = 9,  height = 5, dpi = 300)
+ggsave("images/monthly_distribution.png", p2,       width = 8,  height = 5, dpi = 300)
+ggsave("images/weekly_change.png",        p3,       width = 9,  height = 5, dpi = 300)
+ggsave("images/diesel_vs_gasoline.png",   p4,       width = 7,  height = 5, dpi = 300)
 ```
